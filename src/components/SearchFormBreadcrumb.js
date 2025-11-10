@@ -1,7 +1,9 @@
 const category1Breadcrumb = ({ category1 }) => {
   return /* html */ `
     <span class="text-xs text-gray-500">&gt;</span>
-    <button data-breadcrumb="category1" data-category1=${category1} class="text-xs hover:text-blue-800 hover:underline">${category1}</button>
+    <a href=${`/?category1=${category1}`}>
+      <button data-breadcrumb="category1" data-category1=${category1} class="text-xs hover:text-blue-800 hover:underline">${category1}</button>
+    </a>
     `;
 };
 
@@ -17,7 +19,9 @@ export const SearchFormBreadcrumb = ({ params }) => {
   const category2 = params.get("category2");
 
   return /* html */ `
-    <button data-breadcrumb="reset" class="text-xs hover:text-blue-800 hover:underline">전체</button>
+    <a href='/'>
+      <button data-breadcrumb="reset" class="text-xs hover:text-blue-800 hover:underline">전체</button>
+    </a>
     ${category1 ? category1Breadcrumb({ category1 }) : ""}
     ${category1 && category2 ? category2Breadcrumb({ category2 }) : ""}
     `;
