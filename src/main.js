@@ -1,6 +1,7 @@
 import { getCategories, getProduct, getProducts } from "./api/productApi.js";
 import { DetailPage } from "./pages/DetailPage.js";
 import { HomePage } from "./pages/HomePage.js";
+import { NotFoundPage } from "./pages/NotFoundPage.js";
 
 const enableMocking = () =>
   import("./mocks/browser.js").then(({ worker }) =>
@@ -90,11 +91,13 @@ const render = async () => {
       searchParams.set("sort", e.target.value);
       push(`?${searchParams}`);
     });
-  } else {
+  } else if (relativePath.startsWith("/products")) {
     $root.innerHTML = DetailPage({ loading: true });
     const productId = location.pathname.split("/").pop();
     const data = await getProduct(productId);
     $root.innerHTML = DetailPage({ loading: false, product: data });
+  } else {
+    $root.innerHTML = NotFoundPage();
   }
 
   window.addEventListener("popstate", () => render());
