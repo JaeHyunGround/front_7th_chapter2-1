@@ -26,129 +26,221 @@ const push = (path) => {
   render();
 };
 
-const render = async () => {
-  // render가 호출되면(필터 변경 등) 무한 스크롤 상태를 초기화합니다.
+// 장바구니 개수만 업데이트하는 함수
+const updateCartCount = () => {
+  const cartData = getLocalStorage(ADD_CART_LIST);
+  const count = cartData.length;
+  const cartIconBtn = document.querySelector("#cart-icon-btn");
+
+  if (!cartIconBtn) return;
+
+  // 기존 span 찾기
+  let cartCountElement = document.querySelector("#cart-count");
+
+  if (count === 0) {
+    // 개수가 0이면 span 제거
+    if (cartCountElement) {
+      cartCountElement.remove();
+    }
+  } else {
+    // 개수가 1 이상이면
+    if (cartCountElement) {
+      // span이 있으면 숫자만 업데이트
+      cartCountElement.textContent = count;
+    } else {
+      // span이 없으면 새로 생성 (처음 추가할 때)
+      const newSpan = document.createElement("span");
+      newSpan.id = "cart-count";
+      newSpan.className =
+        "absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center";
+      newSpan.textContent = count;
+      cartIconBtn.appendChild(newSpan);
+    }
+  }
+};
+
+// 무한 스크롤 초기화 함수
+const resetInfiniteScroll = () => {
   current = 1;
   isLoading = false;
   if (globalObserver) {
     globalObserver.disconnect();
     globalObserver = null;
   }
+};
 
-  const basePath = import.meta.env.BASE_URL;
-  const pathName = location.pathname;
-  const relativePath = pathName.replace(basePath, "/").replace(/\/$/, "") || "/";
+// 무한 스크롤 설정 함수
+const setupInfiniteScroll = () => {
+  const { category1, category2, search, limit, sort } = getQueryParams();
+  const observerElement = document.querySelector("#observer");
 
-  const $root = document.querySelector("#root");
-  const { category1, category2, search, limit, sort, searchParams } = getQueryParams();
+  if (!observerElement) return;
 
-  if (relativePath === "/") {
-    $root.innerHTML = HomePage({ loading: true });
+  globalObserver = new IntersectionObserver(
+    async (entries) => {
+      const firstEntry = entries[0];
 
-    // render 시에는 항상 1페이지만 로드합니다.
-    const data = await getProducts({
-      category1,
-      category2,
-      search,
-      limit,
-      sort,
-      current: 1, // 'current' 대신 '1'을 명시
-    });
-    const categories = await getCategories();
-    $root.innerHTML = HomePage({ ...data, loading: false, categories });
+      if (firstEntry.isIntersecting && !isLoading) {
+        isLoading = true;
+        current += 1;
+        observerElement.innerHTML = Loading;
 
-    const searchBar = document.querySelector("#search-input");
+        const newData = await getProducts({
+          category1,
+          category2,
+          search,
+          limit,
+          sort,
+          current,
+        });
+
+        if (newData.products && newData.products.length > 0) {
+          const newProductsHtml = newData.products.map(ProductItem).join("");
+          const productGrid = document.querySelector("#products-grid");
+
+          if (productGrid) {
+            productGrid.insertAdjacentHTML("beforeend", newProductsHtml);
+          }
+
+          observerElement.innerHTML = "";
+          isLoading = false;
+        } else {
+          if (globalObserver) globalObserver.disconnect();
+          observerElement.innerHTML =
+            "<div class='text-center py-4 text-sm text-gray-500'>모든 상품을 확인했습니다</div>";
+        }
+      }
+    },
+    {
+      root: null,
+      rootMargin: "0px 0px 50px 0px",
+      threshold: 0.1,
+    },
+  );
+
+  globalObserver.observe(observerElement);
+};
+
+// 홈페이지 이벤트 리스너 등록 함수
+const setupHomePageEvents = () => {
+  const { searchParams } = getQueryParams();
+
+  // 검색 폼
+  const searchBar = document.querySelector("#search-input");
+  const searchForm = document.querySelector("#search-form");
+
+  if (searchBar) {
     searchBar.addEventListener("change", (e) => {
       searchBar.value = e.target.value;
     });
+  }
 
-    const searchForm = document.querySelector("#search-form");
+  if (searchForm) {
     searchForm.addEventListener("submit", (e) => {
       e.preventDefault();
       searchParams.set("search", searchBar.value);
       push(`?${searchParams}`);
     });
+  }
 
-    const limitSelect = document.querySelector("#limit-select");
-    if (limit) limitSelect.value = searchParams.get("limit");
+  // 개수 선택
+  const limitSelect = document.querySelector("#limit-select");
+  if (limitSelect) {
+    const limit = searchParams.get("limit");
+    if (limit) limitSelect.value = limit;
+
     limitSelect.addEventListener("change", (e) => {
       searchParams.set("limit", String(e.target.value));
       push(`?${searchParams}`);
-      return;
     });
+  }
 
-    const sortSelect = document.querySelector("#sort-select");
-    if (sort) sortSelect.value = searchParams.get("sort");
+  // 정렬 선택
+  const sortSelect = document.querySelector("#sort-select");
+  if (sortSelect) {
+    const sort = searchParams.get("sort");
+    if (sort) sortSelect.value = sort;
+
     sortSelect.addEventListener("change", (e) => {
       searchParams.set("sort", e.target.value);
       push(`?${searchParams}`);
-      return;
     });
+  }
+};
 
-    // 무한 스크롤 Observer 설정
-    // TODO : #observer 요소를 index.html에 추가해서 main 함수로 뺄 수 있을지도 ?
-    const observerElement = document.querySelector("#observer");
-    if (observerElement) {
-      // observerElement가 있을 때만 실행
-      globalObserver = new IntersectionObserver(
-        async (entries) => {
-          const firstEntry = entries[0]; // 옵저버에 등록된 요소가 1개 뿐이라 인덱스가 0인 요소를 지정해서 사용 가능
-          // 뷰포트에 들어왔고, 로딩 중이 아닐 때만 실행
-          if (firstEntry.isIntersecting && !isLoading) {
-            isLoading = true; // 로딩 시작
-            current += 1; // 다음 페이지
-            observerElement.innerHTML = Loading; // 로딩 스피너 표시
+// 홈페이지 렌더링 함수
+const renderHomePage = async () => {
+  const $root = document.querySelector("#root");
+  const { category1, category2, search, limit, sort } = getQueryParams();
 
-            const newData = await getProducts({
-              category1,
-              category2,
-              search,
-              limit,
-              sort,
-              current, // 증가된 페이지로 요청
-            });
+  // 무한 스크롤 상태 초기화
+  resetInfiniteScroll();
 
-            if (newData.products && newData.products.length > 0) {
-              // 새 상품 HTML을 생성 (ProductItem 템플릿 사용)
-              const newProductsHtml = newData.products.map(ProductItem).join("");
+  // 로딩 상태 표시
+  $root.innerHTML = HomePage({ loading: true });
 
-              // 'products-grid'에 새 HTML을 'beforeend'로 추가
-              const productGrid = document.querySelector("#products-grid");
-              if (productGrid) {
-                productGrid.insertAdjacentHTML("beforeend", newProductsHtml);
-              }
+  // 데이터 페칭
+  const data = await getProducts({
+    category1,
+    category2,
+    search,
+    limit,
+    sort,
+    current: 1,
+  });
+  const categories = await getCategories();
 
-              observerElement.innerHTML = ""; // 로딩 스피너 제거
-              isLoading = false; // 로딩 완료
-            } else {
-              // 더 이상 데이터가 없으면 Observer 중지
-              if (globalObserver) globalObserver.disconnect();
-              observerElement.innerHTML =
-                "<div class='text-center py-4 text-sm text-gray-500'>모든 상품을 확인했습니다</div>";
-            }
-          }
-        },
-        {
-          root: null, // 뷰포트 기준
-          rootMargin: "0px 0px 50px 0px", // 화면 하단 50px 전에 미리 로드
-          threshold: 0.1,
-        },
-      );
-      globalObserver.observe(observerElement); // Observer 시작
-    }
+  // 최종 렌더링
+  $root.innerHTML = HomePage({ ...data, loading: false, categories });
+
+  // 이벤트 리스너 등록
+  setupHomePageEvents();
+
+  // 무한 스크롤 설정
+  setupInfiniteScroll();
+};
+
+// 상세 페이지 렌더링 함수
+const renderDetailPage = async () => {
+  const $root = document.querySelector("#root");
+
+  // 로딩 상태 표시
+  $root.innerHTML = DetailPage({ loading: true });
+
+  // 데이터 페칭
+  const productId = location.pathname.split("/").pop();
+  const data = await getProduct(productId);
+
+  // 최종 렌더링
+  $root.innerHTML = DetailPage({ loading: false, product: data });
+};
+
+// 404 페이지 렌더링 함수
+const renderNotFoundPage = () => {
+  const $root = document.querySelector("#root");
+  $root.innerHTML = NotFoundPage();
+};
+
+// 라우팅 담당 render 함수
+const render = async () => {
+  const basePath = import.meta.env.BASE_URL;
+  const pathName = location.pathname;
+  const relativePath = pathName.replace(basePath, "/").replace(/\/$/, "") || "/";
+
+  if (relativePath === "/") {
+    await renderHomePage();
   } else if (relativePath.startsWith("/products")) {
-    $root.innerHTML = DetailPage({ loading: true });
-    const productId = location.pathname.split("/").pop();
-    const data = await getProduct(productId);
-    $root.innerHTML = DetailPage({ loading: false, product: data });
+    await renderDetailPage();
   } else {
-    $root.innerHTML = NotFoundPage();
+    renderNotFoundPage();
   }
 };
 
 function main() {
-  window.addEventListener("popstate", () => render()); // popstate 이벤트는 main 함수에서 한 번만 등록
+  // popstate 이벤트 등록
+  window.addEventListener("popstate", () => render());
 
+  // 이벤트 위임 방식으로 클릭 이벤트 처리
   // render 함수 내에서 클릭 이벤트를 추가했던 기존 방식에서 main 함수에서 클릭 이벤트를 추가하는 방식으로 수정
   // render 함수 내에서 추가 시 render 함수 호출 할 때마다 root에 클릭 이벤트가 추가되어 중복되는 문제 발생 =>
   // 제품 카드 1번 눌렀는데 여러 번 등록된 클릭 이벤트 때문에 /products/82094468339/products/82094468339 이런 식으로 되어버리는 문제 발생
@@ -158,8 +250,9 @@ function main() {
   // => root 요소가 바뀔 때 클릭 이벤트 핸들러가 추가되지 않음 ! (main 함수는 최초 렌더링 시에만 실행되기 때문)
   // => 따라서 이벤트 위임 방식으로 $root에 클릭 이벤트 추가 ($root는 없어지지 않으니깐 !)
   const $root = document.querySelector("#root");
-  // TODO : 렌더를 해주지 않으면 장바구니 아이콘에 숫자가 반영되지 않음
+
   $root.addEventListener("click", async (e) => {
+    // 장바구니 추가 버튼
     const addCartButton = e.target.closest(".add-to-cart-btn");
     if (addCartButton) {
       e.stopPropagation();
@@ -170,19 +263,23 @@ function main() {
         const storedData = getLocalStorage(ADD_CART_LIST);
         const addToCartTarget = await getProduct(productCard.dataset.productId);
         setLocalStorage(ADD_CART_LIST, [...storedData, addToCartTarget]);
-      }
 
+        // 장바구니 개수만 업데이트
+        updateCartCount();
+      }
       return;
     }
 
+    // 상품 카드 클릭
     const productCard = e.target.closest(".product-card");
     if (productCard) {
       e.preventDefault();
-      const productId = e.target.closest(".product-card").dataset.productId;
+      const productId = productCard.dataset.productId;
       push(`products/${productId}`);
       return;
     }
 
+    // 카테고리1 필터 버튼
     const category1Button = e.target.closest(".category1-filter-btn");
     if (category1Button) {
       const { searchParams } = getQueryParams();
@@ -191,6 +288,7 @@ function main() {
       return;
     }
 
+    // 카테고리2 필터 버튼
     const category2Button = e.target.closest(".category2-filter-btn");
     if (category2Button) {
       const { searchParams } = getQueryParams();
@@ -200,6 +298,7 @@ function main() {
     }
   });
 
+  // 초기 렌더링
   render();
 }
 
