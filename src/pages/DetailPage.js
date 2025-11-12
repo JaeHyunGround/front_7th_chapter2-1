@@ -17,11 +17,15 @@ const Detail = ({ title, category1, category2, image, rating, reviewCount, lpric
         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
-        <button class="breadcrumb-link" data-category1="생활/건강">${category1}</button>
+        <a href="/?category1=${category1}">
+          <button class="breadcrumb-link" data-category1=${category1}>${category1}</button>
+        </a>
         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
-        <button class="breadcrumb-link" data-category2="생활용품">${category2}</button>
+        <a href="/?category1=${category1}&category2=${category2}">
+          <button class="breadcrumb-link" data-category2=${category2}>${category2}</button>
+        </a>
       </div>
     </nav>
     <!-- 상품 상세 정보 -->
@@ -172,6 +176,7 @@ const Detail = ({ title, category1, category2, image, rating, reviewCount, lpric
 };
 
 export const DetailPage = ({ loading, product }) => {
+  console.log({ ...product });
   return PageLayout({
     children: loading ? Loading : Detail({ ...product }),
   });
