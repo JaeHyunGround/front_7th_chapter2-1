@@ -22,7 +22,7 @@ let isLoading = false;
 let current = 1;
 
 const push = (path) => {
-  history.pushState(null, null, location.pathname + path);
+  history.pushState(null, null, path);
   render();
 };
 
@@ -294,6 +294,13 @@ function main() {
       const { searchParams } = getQueryParams();
       searchParams.set("category2", e.target.dataset.category2);
       push(`?${searchParams}`);
+      return;
+    }
+
+    const goToProductList = e.target.closest(".go-to-product-list");
+    if (goToProductList) {
+      e.preventDefault();
+      push("/front_7th_chapter2-1/");
       return;
     }
   });
