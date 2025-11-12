@@ -20,7 +20,7 @@ const category2Breadcrumb = ({ category2 }) => {
   `;
 };
 
-export const SearchFormBreadcrumb = ({ params }) => {
+export const Breadcrumb = ({ params }) => {
   const category1 = params.get("category1");
   const category2 = params.get("category2");
 

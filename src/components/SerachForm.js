@@ -1,10 +1,4 @@
-import {
-  SearchFormBreadcrumb,
-  Category1DepthButton,
-  Category2DepthActiveButton,
-  Category2DepthButton,
-  SearchBar,
-} from "./index";
+import { Breadcrumb, Category1DepthButton, Category2DepthActiveButton, Category2DepthButton, SearchBar } from "./index";
 
 export const SearchForm = ({ categories, loading }) => {
   const params = new URLSearchParams(location.search);
@@ -44,7 +38,7 @@ export const SearchForm = ({ categories, loading }) => {
         <div class="space-y-2">
           <div class="flex items-center gap-2">
             <label class="text-sm text-gray-600">카테고리:</label>
-            ${SearchFormBreadcrumb({ params })}
+            ${Breadcrumb({ params })}
           </div>
           <div class="space-y-2">
             <div class="flex flex-wrap gap-2">
