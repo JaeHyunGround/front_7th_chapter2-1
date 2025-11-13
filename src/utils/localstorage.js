@@ -1,4 +1,4 @@
-export const ADD_CART_LIST = "add-cart-list";
+export const ADD_CART_LIST = "shopping_cart";
 
 export const getLocalStorage = (key) => {
   if (!localStorage.getItem(key)) return [];
