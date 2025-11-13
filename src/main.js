@@ -368,22 +368,19 @@ function main() {
       }
     }
 
-    // ========================================
-    // 장바구니 모달 이벤트 (cartState 사용)
-    // ========================================
-
     // 장바구니 모달 전체 선택 체크
     const selectAllCheckbox = e.target.closest("#cart-modal-select-all-checkbox");
     if (selectAllCheckbox) {
-      cartState.toggleSelectAll(); // 상태 변경 → 자동 재렌더링
+      cartState.toggleSelectAll();
       return;
     }
 
     // 장바구니 전체 비우기
     const cartClearButton = e.target.closest("#cart-modal-clear-cart-btn");
     if (cartClearButton) {
-      cartState.clearCart(); // 상태 변경 → 자동 재렌더링
+      cartState.clearCart();
       updateCartCount();
+      showToast("delete");
       return;
     }
 
@@ -391,8 +388,9 @@ function main() {
     const cartItemRemoveBtn = e.target.closest(".cart-item-remove-btn");
     if (cartItemRemoveBtn) {
       const targetId = cartItemRemoveBtn.dataset.productId;
-      cartState.removeItem(targetId); // 상태 변경 → 자동 재렌더링
+      cartState.removeItem(targetId);
       updateCartCount();
+      showToast("delete");
       return;
     }
 
