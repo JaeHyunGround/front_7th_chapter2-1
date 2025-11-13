@@ -4,7 +4,7 @@ import { Loading, ProductItem } from "./components/ProductList.js";
 import { DetailPage } from "./pages/DetailPage.js";
 import { HomePage } from "./pages/HomePage.js";
 import { NotFoundPage } from "./pages/NotFoundPage.js";
-import { storedData } from "./utils/storedData.js";
+import { storedData, updateCartCount } from "./utils/storedData.js";
 import { getQueryParams } from "./utils/getQueryParams.js";
 import { showToast } from "./utils/showToast.js";
 import { cartState } from "./state/cartState.js";
@@ -230,12 +230,7 @@ const render = async () => {
 };
 
 function main() {
-  // ========================================
-  // 장바구니 상태 관리 구독 설정
-  // ========================================
-  // cartState가 변경될 때마다 모달 자동 재렌더링
   cartState.subscribe(renderCartModal);
-  console.log("[main] 장바구니 상태 구독 완료");
 
   // popstate 이벤트 등록
   window.addEventListener("popstate", () => render());
@@ -305,7 +300,6 @@ function main() {
       const quantityInput = document.querySelector("#quantity-input");
       const productId = location.pathname.split("/").pop();
       if (quantityInput) {
-        console.log(quantityInput.value);
         storedData({ id: productId, datailPageQuantity: quantityInput.value });
       }
 
@@ -325,7 +319,7 @@ function main() {
     if (cartIconBtn) {
       const cartModal = document.querySelector(".cart-modal");
       if (!cartModal) {
-        $root.innerHTML += CartModal();
+        $root.insertAdjacentHTML("beforeend", CartModal());
         document.addEventListener("keydown", (e) => handleCartModalEscape(e));
       }
       return;
@@ -386,6 +380,7 @@ function main() {
     const cartClearButton = e.target.closest("#cart-modal-clear-cart-btn");
     if (cartClearButton) {
       cartState.clearCart(); // 상태 변경 → 자동 재렌더링
+      updateCartCount();
       return;
     }
 
@@ -394,6 +389,7 @@ function main() {
     if (cartItemRemoveBtn) {
       const targetId = cartItemRemoveBtn.dataset.productId;
       cartState.removeItem(targetId); // 상태 변경 → 자동 재렌더링
+      updateCartCount();
       return;
     }
 
@@ -417,6 +413,7 @@ function main() {
     const removeSelectedBtn = e.target.closest("#cart-modal-remove-selected-btn");
     if (removeSelectedBtn) {
       cartState.removeSelectedItems(); // 상태 변경 → 자동 재렌더링
+      updateCartCount();
       return;
     }
 

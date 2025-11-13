@@ -2,7 +2,7 @@ import { getProduct } from "../api/productApi";
 import { ADD_CART_LIST, getLocalStorage, setLocalStorage } from "./localstorage";
 
 // 장바구니 개수만 업데이트하는 함수
-const updateCartCount = () => {
+export const updateCartCount = () => {
   const cartData = getLocalStorage(ADD_CART_LIST).items;
   const count = cartData.length;
   const cartIconBtn = document.querySelector("#cart-icon-btn");

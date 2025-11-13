@@ -10,16 +10,14 @@ export const cartState = {
 
   unsubscribe(listener) {
     this.listeners = this.listeners.filter((l) => l !== listener);
-    console.log(`[cartState] 구독자 제거됨. 현재 구독자 수: ${this.listeners.length}`);
   },
 
   notify() {
-    console.log(`[cartState] 상태 변경 알림 전송 (구독자 ${this.listeners.length}명)`);
     this.listeners.forEach((listener) => {
       try {
         listener();
       } catch (error) {
-        console.error("[cartState] 리스너 실행 중 오류:", error);
+        console.error(error);
       }
     });
   },
