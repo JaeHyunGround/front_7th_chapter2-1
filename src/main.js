@@ -254,7 +254,7 @@ const render = async () => {
 
   if (relativePath === "/") {
     await renderHomePage();
-  } else if (relativePath.startsWith("/products")) {
+  } else if (relativePath.startsWith("/product")) {
     await renderDetailPage();
   } else {
     renderNotFoundPage();
@@ -302,7 +302,7 @@ function main() {
     if (productCard) {
       e.preventDefault();
       const productId = productCard.dataset.productId;
-      push(`products/${productId}`);
+      push(`product/${productId}`);
       return;
     }
 
