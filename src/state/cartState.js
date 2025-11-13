@@ -5,7 +5,6 @@ export const cartState = {
 
   subscribe(listener) {
     this.listeners.push(listener);
-    console.log(`[cartState] 구독자 등록됨. 현재 구독자 수: ${this.listeners.length}`);
   },
 
   unsubscribe(listener) {

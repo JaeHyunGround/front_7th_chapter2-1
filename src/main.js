@@ -8,6 +8,7 @@ import { storedData, updateCartCount } from "./utils/storedData.js";
 import { getQueryParams } from "./utils/getQueryParams.js";
 import { showToast } from "./utils/showToast.js";
 import { cartState } from "./state/cartState.js";
+import { ADD_CART_LIST, getLocalStorage, setLocalStorage } from "./utils/localstorage.js";
 
 const enableMocking = () =>
   import("./mocks/browser.js").then(({ worker }) =>
@@ -317,6 +318,8 @@ function main() {
     // 장바구니 아이콘 클릭
     const cartIconBtn = e.target.closest("#cart-icon-btn");
     if (cartIconBtn) {
+      if (!getLocalStorage(ADD_CART_LIST).items) setLocalStorage(ADD_CART_LIST, { items: [], selectedAll: false });
+
       const cartModal = document.querySelector(".cart-modal");
       if (!cartModal) {
         $root.insertAdjacentHTML("beforeend", CartModal());
