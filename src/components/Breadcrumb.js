@@ -1,15 +1,14 @@
 const category1Breadcrumb = ({ category1 }) => {
   return /* HTML */ `
     <span class="text-xs text-gray-500">&gt;</span>
-    <a href=${`/?category1=${category1}`}>
-      <button
-        data-breadcrumb="category1"
-        data-category1=${category1}
-        class="text-xs hover:text-blue-800 hover:underline"
-      >
-        ${category1}
-      </button>
-    </a>
+    <button
+      id="category1-breadcrumb"
+      data-breadcrumb="category1"
+      data-category1=${category1}
+      class="text-xs hover:text-blue-800 hover:underline"
+    >
+      ${category1}
+    </button>
   `;
 };
 

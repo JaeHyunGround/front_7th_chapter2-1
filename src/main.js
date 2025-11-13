@@ -191,7 +191,7 @@ const renderHomePage = async () => {
   const categories = await getCategories();
 
   // 최종 렌더링
-  $root.innerHTML = HomePage({ ...data, loading: false, categories });
+  $root.innerHTML = HomePage({ ...data, loading: false, categories, pageTitle: "쇼핑몰" });
 
   // 이벤트 리스너 등록
   setupHomePageEvents();
@@ -216,7 +216,12 @@ const renderDetailPage = async () => {
   });
 
   // 최종 렌더링
-  $root.innerHTML = DetailPage({ loading: false, product: data, responsiveList: responsiveData.products });
+  $root.innerHTML = DetailPage({
+    pageTitle: "상품 상세",
+    loading: false,
+    product: data,
+    responsiveList: responsiveData.products,
+  });
 };
 
 // 404 페이지 렌더링 함수
@@ -299,6 +304,13 @@ function main() {
       searchParams.set("category2", e.target.dataset.category2);
       push(`?${searchParams}`);
       return;
+    }
+
+    const category1Breadcrumb = e.target.closest("#category1-breadcrumb");
+    if (category1Breadcrumb) {
+      const { searchParams } = getQueryParams();
+      searchParams.delete("category2");
+      push(`?${searchParams}`);
     }
 
     const goToProductList = e.target.closest(".go-to-product-list");

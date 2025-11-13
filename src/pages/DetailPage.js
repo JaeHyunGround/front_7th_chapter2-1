@@ -175,8 +175,9 @@ const Detail = ({
     </div>`;
 };
 
-export const DetailPage = ({ loading, product, responsiveList }) => {
+export const DetailPage = ({ loading, product, responsiveList, pageTitle }) => {
   return PageLayout({
+    pageTitle,
     children: loading ? Loading : Detail({ ...product, responsiveList }),
   });
 };
