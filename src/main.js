@@ -1,4 +1,5 @@
 import { getCategories, getProduct, getProducts } from "./api/productApi.js";
+import { CartModal } from "./components/CartModal.js";
 import { Loading, ProductItem } from "./components/ProductList.js";
 import { DetailPage } from "./pages/DetailPage.js";
 import { HomePage } from "./pages/HomePage.js";
@@ -24,6 +25,20 @@ let current = 1;
 const push = (path) => {
   history.pushState(null, null, path);
   render();
+};
+
+const closeCartModal = () => {
+  const cartModal = document.querySelector(".cart-modal");
+  if (cartModal) {
+    cartModal.remove();
+    document.removeEventListener("keydown", handleCartModalEscape);
+  }
+};
+
+const handleCartModalEscape = (e) => {
+  if (e.key === "Escape") {
+    closeCartModal();
+  }
 };
 
 // 장바구니 개수만 업데이트하는 함수
@@ -339,6 +354,31 @@ function main() {
       // TODO : /products/:id 절대 방식으로 수정
       // /front_7th_chapter2-1/ 이걸 로컬 환경에서 환경 변수 선언해서 쓰거나, 로컬에선 url에 제거하기
       push(`${productId}`);
+      return;
+    }
+
+    // 장바구니 아이콘 클릭
+    const cartIconBtn = e.target.closest("#cart-icon-btn");
+    if (cartIconBtn) {
+      const cartModal = document.querySelector(".cart-modal");
+      if (!cartModal) {
+        $root.innerHTML += CartModal();
+        document.addEventListener("keydown", (e) => handleCartModalEscape(e));
+      }
+      return;
+    }
+
+    // 장바구니 모달 바깥 영역 클릭
+    const cartModalOverlay = e.target.closest(".cart-modal-overlay");
+    if (cartModalOverlay) {
+      closeCartModal();
+      return;
+    }
+
+    // 장바구니 close 버튼 클릭
+    const carModalCloseBtn = e.target.closest("#cart-modal-close-btn");
+    if (carModalCloseBtn) {
+      closeCartModal();
       return;
     }
   });
