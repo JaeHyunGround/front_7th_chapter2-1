@@ -1,12 +1,8 @@
 import { defineConfig } from "vite";
 
-export default defineConfig(({ mode }) => {
-  const base_path = mode === "production" ? "/front_7th_chapter2-1/" : "/";
-
-  return {
-    base: base_path,
-    build: {
-      outDir: "dist",
-    },
-  };
+export default defineConfig({
+  base: "/front_7th_chapter2-1/",
+  build: {
+    outDir: "dist",
+  },
 });
