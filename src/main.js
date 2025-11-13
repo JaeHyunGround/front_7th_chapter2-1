@@ -349,6 +349,9 @@ function main() {
 
         updateCartCount();
       }
+
+      showToast("success");
+      return;
     }
 
     const relatedProductCard = e.target.closest(".related-product-card");
