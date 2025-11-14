@@ -183,10 +183,8 @@ const renderHomePage = async () => {
 
     $root.innerHTML = HomePage({ ...data, loading: false, categories, pageTitle: "쇼핑몰" });
 
-    // 이벤트 리스너 등록
     setupHomePageEvents();
 
-    // 무한 스크롤 설정
     setupInfiniteScroll();
   } catch (error) {
     console.error(error);
@@ -390,7 +388,6 @@ function main() {
       return;
     }
 
-    // 장바구니 아이콘 클릭
     const cartIconBtn = e.target.closest("#cart-icon-btn");
     if (cartIconBtn) {
       if (!getLocalStorage(ADD_CART_LIST).items) setLocalStorage(ADD_CART_LIST, { items: [], selectedAll: false });
@@ -403,21 +400,18 @@ function main() {
       return;
     }
 
-    // 장바구니 모달 바깥 영역 클릭
     const cartModalOverlay = e.target.closest(".cart-modal-overlay");
     if (cartModalOverlay) {
       closeCartModal();
       return;
     }
 
-    // 장바구니 close 버튼 클릭
     const carModalCloseBtn = e.target.closest("#cart-modal-close-btn");
     if (carModalCloseBtn) {
       closeCartModal();
       return;
     }
 
-    // 상세 페이지 수량 조절 이벤트
     const decreaseBtn = e.target.closest("#quantity-decrease");
     const increaseBtn = e.target.closest("#quantity-increase");
 
