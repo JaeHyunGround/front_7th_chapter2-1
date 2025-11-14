@@ -18,7 +18,7 @@ export const Header = ({ pageTitle }) => {
 
   const HomeTitle = () => {
     return /* HTML */ ` <h1 class="text-xl font-bold text-gray-900">
-      <a href="/" data-link="">${pageTitle || ""}</a>
+      <a href="${import.meta.env.BASE_URL}" data-link="">${pageTitle || ""}</a>
     </h1>`;
   };
 
